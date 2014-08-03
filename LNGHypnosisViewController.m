@@ -10,7 +10,7 @@
 #import "LNGHypnosisView.h"
 
 @interface LNGHypnosisViewController () <UITextFieldDelegate>
-
+@property (nonatomic, weak) UITextField *textField;
 @end
 
 @implementation LNGHypnosisViewController
@@ -34,7 +34,7 @@
     LNGHypnosisView *backgroundView = [[LNGHypnosisView alloc] initWithFrame:frame];
     
     // Create a text field
-    CGRect textFieldRect = CGRectMake(40, 70, 240, 30);
+    CGRect textFieldRect = CGRectMake(40, -30, 240, 30);
     UITextField *textField = [[UITextField alloc] initWithFrame:textFieldRect];
     
     textField.borderStyle = UITextBorderStyleRoundedRect;
@@ -44,8 +44,26 @@
     
     [backgroundView addSubview:textField];
     
+    self.textField = textField;
+    
     // Set it as *the* view of this view controller
     self.view = backgroundView;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [UIView animateWithDuration:1.0
+                          delay:0.0
+         usingSpringWithDamping:0.4
+          initialSpringVelocity:0.0
+                        options:0
+                     animations:^{
+                         CGRect frame = CGRectMake(40, 70, 240, 30);
+                         self.textField.frame = frame;
+                     }
+                     completion:NULL];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -81,6 +99,33 @@
         messageLabel.frame = frame;
         
         [self.view addSubview:messageLabel];
+        
+        // Animation
+        messageLabel.alpha = 0.0;
+        [UIView animateWithDuration:0.5
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             messageLabel.alpha = 1.0;
+                         }
+                         completion:NULL];
+        
+        [UIView animateKeyframesWithDuration:1.0
+                                       delay:0.0
+                                     options:0
+                                  animations:^{
+                                      [UIView addKeyframeWithRelativeStartTime:0 relativeDuration:0.8 animations:^{
+                                          messageLabel.center = self.view.center;
+                                      }];
+                                      [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
+                                          int x = arc4random() % width;
+                                          int y = arc4random() % height;
+                                          messageLabel.center = CGPointMake(x, y);
+                                      }];
+                                  }
+                                  completion:^(BOOL finished){
+                                      NSLog(@"Animation Finished");
+                                  }];
         
         // Add a vertical and horizontal motion effect
         UIInterpolatingMotionEffect *motionEffect;
